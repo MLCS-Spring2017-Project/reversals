@@ -1,6 +1,9 @@
 from helpers import ngrams
+from helpers import zip_parser
+import sys
 
 if __name__ == '__main__':
     generator = ngrams.NgramGenerator()
-    with open('Generators/Ngrams/1880/X1913RQNB5G0-maj.txt', 'r') as txt:
-        generator.generate(txt.read())
+    parser = zip_parser.ZipParser()
+
+    parser.parse(sys.argv[1], generator.generate)

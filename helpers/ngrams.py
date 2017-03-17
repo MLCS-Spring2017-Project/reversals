@@ -8,12 +8,13 @@ import string
 class NgramGenerator:
     def __init__(self, N=5):
         self.stopset = set(stopwords.words('english'))
+        self.translator = str.maketrans('', '', string.punctuation)
         self.N = N
         return
 
     def generate(self, txt):
         counter = Counter()
-        txt = txt.translate(None, string.punctuation)
+        txt = txt.translate(self.translator)
         tokens = word_tokenize(str(txt))
         tokens = [w for w in tokens if w not in self.stopset]
         txt = ' '.join(tokens)
