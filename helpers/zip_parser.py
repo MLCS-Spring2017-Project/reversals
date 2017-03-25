@@ -1,7 +1,7 @@
 import os
 import pickle
-import collections
 
+from collections import Counter
 from glob import glob
 from zipfile import ZipFile
 
@@ -24,7 +24,11 @@ class ZipParser():
             members = zfile.namelist()
 
             threshold = len(members) / 200
-            docfreqs = []
+            feature_points = []
+            docfreqs = {
+                "affirmed": Counter(),
+                "reversed": Counter()
+            }
 
             for fname in members:
 
@@ -34,7 +38,6 @@ class ZipParser():
 
                 docid = fname.split('/')[-1][:-8]
                 case = dic.loc[dic['caseid'] == docid]
-
                 if case.empty:
                     continue
                 elif case['Affirmed'].tolist()[0] == 0.0 \
@@ -46,7 +49,11 @@ class ZipParser():
                     status = "Reversed"
 
                 text = zfile.open(fname).read().decode()
-                tup = (generator(text), status)
-                docfreqs.append(tup)
+                ngrams = generator(text)
+                docfreqs[status.lower()].update(ngrams)
 
-            pickle.dump(docfreqs, open(zfname + ".pkl", "wb"))
+                tup = (ngrams, status)
+                feature_points.append(tup)
+
+            pickle.dump(feature_points, open(year + "-ngrams.pkl", "wb"))
+            pickle.dump(docfreqs, open(year + "-docfreqs.pkl", "wb"))
