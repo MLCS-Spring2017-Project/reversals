@@ -1,5 +1,6 @@
 import sys
 import argparse
+import os
 
 from helpers import zip_parser
 from helpers import ngrams
@@ -24,3 +25,4 @@ if __name__ == '__main__':
         classifier_instance = classifier.Classifier()
         dic = classifier_instance.fetch(args.file)
         classifier_instance.train(dic)
+        classifier_instance.predict(os.path.dirname(os.path.realpath(__file__)) + "/../ngram_test")

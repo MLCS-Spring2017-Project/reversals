@@ -19,24 +19,42 @@ class Classifier:
 
         datapoints = []
         for fname in files:
+            # print(fname)
             docid = fname.split('/')[-1][:-4]
             case = self.dic.loc[self.dic['caseid'] == docid]
-            if case.empty:
+            status = self.check_case_status(case)
+            if not status:
                 continue
-            elif case['Affirmed'].tolist()[0] == 0.0 \
-                    and case['Reversed'].tolist()[0] == 0.0:
-                continue
-            elif case['Affirmed'].tolist()[0] == 1.0:
-                status = "Affirmed"
-            else:
-                status = "Reversed"
 
             dic = utils.read_file_to_dict(fname)
             datapoints.append((dic, status))
         return datapoints
 
+    def check_case_status(self, case):
+        if case.empty:
+            return False
+        elif case['Affirmed'].tolist()[0] == 0.0 \
+                and case['Reversed'].tolist()[0] == 0.0:
+            return False
+        elif case['Affirmed'].tolist()[0] == 1.0:
+            status = "Affirmed"
+        else:
+            status = "Reversed"
+
+        return status
+
     def train(self, train_data):
         self.classifier.train(train_data)
 
-    def perdict(self, test_data):
-        return self.classifier.classify(test_data)
+    def predict(self, dir):
+        os.chdir(dir)
+        files = glob("./**/*.txt")
+
+        datapoints = []
+        for fname in files:
+            docid = fname.split('/')[-1][:-4]
+            case = self.dic.loc[self.dic['caseid'] == docid]
+            status = self.check_case_status(case)
+            test_data = utils.read_file_to_dict(fname)
+            predicted_status = self.classifier.classify(test_data)
+            print(status == predicted_status)
