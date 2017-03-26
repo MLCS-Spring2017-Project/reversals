@@ -3,40 +3,58 @@ import os
 import pickle
 
 
-def pegasos_fast(review_list, max_epoch, lam, watch_list=None, tfidf=False):
+def pegasos_fast(x, y, max_epoch, lam):
     if lam < 0:
         sys.exit("Lam must be greater than 0")
-    print "lambda = %r, use tfidf = %r" % (lam, tfidf)
-    # Initialization
     weight = Counter()
     epoch = 0
-    t = 1.
-    review_number = len(review_list)
-    s = 1.
+    t = 1.0
+    x_length = len(x)
+    s = 1.0
     while epoch < max_epoch:
         start_time = time.time()
         epoch += 1
-        for j in xrange(review_number):
+        for j in xrange(x_length):
             t += 1
-            eta = 1. / (t * lam)
+            eta = 1.0 / (t * lam)
             s = (1 - eta * lam) * s
-            review = review_list[j]
-            label = review.label
-            if tfidf:
-                feature = review.word_tfidf
+            if y[j] == 0:
+                label = -1.0
             else:
-                feature = review.word_dict
+                label = 1.0
+            feature = x[j]
             if label * dotProduct(feature, weight) < 1:
                 temp = eta * label / s
                 increment(weight, temp, feature)
-                # print weight
         end_time = time.time()
         epoch_weight = Counter()
         increment(epoch_weight, s, weight)
-        print "Epoch %r: in %.3f seconds. Training accuracy: %.3f, Test accuracy:%.3f" % (epoch, end_time - start_time, accuracy_percent(review_list,
-            epoch_weight, tfidf=tfidf) accuracy_percent(watch_list, epoch_weight, tfidf=tfidf))
     return epoch_weight
 
 
+def svm_predict(X_test, weight):
+    if dotProduct(weight, X_test) > 0:
+        return 1
+    else:
+        return -1
+
+
+def main():
+    print('loading the dataset')
+    f = open('./../../x_data.pickle', 'rb')
+    x = pickle.load(f)
+    f.close()
+    f = open('./../../y_data.pickle', 'rb')
+    y_data = pickle.load(f)
+    f.close()
+    print('Split into Train and Test')
+    x_train = x[:1500]
+    x_test = x[1500:2000]
+    y_train = y_data[:1500]
+    y_test = y_data[1500:2000]
+    svm_weight = pegasos_fast(x_train, y_train, 1000, 0.01)
+    print(svm_predict(x_test[0], svm_weight), y[0])
+
+
 if __name__ == '__main__':
-    create_data()
+    main()
