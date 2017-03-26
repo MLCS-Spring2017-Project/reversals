@@ -10,21 +10,16 @@ def create_data():
 
 
 	# with open("/home/karthik/Documents/COURT/BloombergCASELEVEL_Touse.csv", mode='r') as infile:
-	# 	caselevel = csv.reader(infile)
-	# 	caselevel = list(row[i] for i in fields)
-	# 	caselevel_dict = {case[0]:case[1] for case in caselevel}
-
+	# 	reader = csv.reader(infile)
+	# 	dictionary = {rows['caseid']:rows['Reversed'] for rows in reader}
+		
 	caselevel = pd.read_csv("/home/karthik/Documents/COURT/BloombergCASELEVEL_Touse.csv",skipinitialspace=True, usecols=fields)
 
-	#print caselevel
-
+	caselevel_dict = {k:v for k,v in zip(caselevel['caseid'],caselevel['Reversed'])}
+	
 	i=0
 
-	#caselevel_dict = {case[0]:case[1] for case in caselevel}
-	
-	#print caselevel_dict
-
-	caselevel_set = set(caselevel['caseid'])
+	#caselevel_set = set(caselevel['caseid'])
 
 	path = "/home/karthik/Documents/COURT/Ngrams/data"
 
@@ -40,11 +35,13 @@ def create_data():
 			if name.endswith((".txt")):
 				caseid = name.replace(".txt","")
 			
-			if caseid in caselevel_set:
+			if caseid in caselevel_dict:
 				i+=1
 				with open(os.path.join(root,name), mode='r') as infile:
 					reader = csv.reader(infile)
 					dictionary = {rows[0]:rows[1] for rows in reader}
+
+				dictionary[caseid] = caselevel_dict[caseid]
 				data.append(dictionary)
 				
 	print "Number of common cases between ngrams and caselevel data : ",i
