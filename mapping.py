@@ -6,50 +6,55 @@ import pickle
 from collections import Counter
 from glob import glob
 from zipfile import ZipFile
+from helpers import dctcc_linker
 
-file = open(sys.argv[1], "rb")
+with open(sys.argv[1], newline='') as file:
 
+    entry = csv.reader(file)
 
-entry = csv.reader(file)
-
-i = 0
-cases = {}
-print(entry)
-
-for row in entry:
-
-    # parties = row[1].split("v.", 1)
-
-    cases["name"] = row[1]
-    # cases["Second_Person"] = parties[1]
-    cases["courtid"] = row[2]
-    cases["clusterid"] = row[0]
-
-    date = row[4].split("/", 2)
-    print(date)
-    cases["year"] = int(date[1])
+    i = 0
+    cases = {}
+    print(entry)
 
     os.chdir(sys.argv[2])
-    # zipfiles = glob('*zip')
 
-    for zfname in range(cases["year"], cases["year"] + 5):
+    for row in entry:
 
-        zfile = ZipFile(str(zfname) + ".zip")
-        # year = zfname.split('/')[-1][:-4]
+        # parties = row[1].split("v.", 1)
 
-        print(zfname)
-        members = zfile.namelist()
+        if i < 100:
+            i += 1
+            continue
 
-        for files in members:
+        cases["name"] = row[1]
+        print(cases["name"])
+        # cases["Second_Person"] = parties[1]
+        cases["courtid"] = row[2]
+        cases["clusterid"] = row[0]
 
-            if fname.endswith('-maj.txt'):
-                continue
+        date = row[4].split("-", 2)
+        print(date)
+        cases["year"] = int(date[0])
 
-            text = zfile.open(files).read().decode('utf-8')
+        for zfname in range(cases["year"], cases["year"] + 5):
 
-            print(text)
-            # link(text,cases["name"])
-    i += 1
+            zfile = ZipFile(str(zfname) + ".zip")
 
-    if i > 10:
-        break
+            print(zfile)
+            members = zfile.namelist()
+
+            for files in members:
+
+                if files.endswith('-maj.txt'):
+                    continue
+
+                text = zfile.open(files).read().decode('utf-8')
+
+                linker = dctcc_linker.DCTCCLinker()
+                if linker.link(cases["name"], text):
+                    print("Link Found")
+
+        i += 1
+
+        if i > 110:
+            break
