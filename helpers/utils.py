@@ -1,6 +1,8 @@
 import os
 import csv
 
+from collections import Counter
+
 
 def save_dict_to_file(target_path, dict_to_save):
     """
@@ -22,3 +24,13 @@ def save_dict_to_file(target_path, dict_to_save):
         except Exception as e:
             print(str(e))
             pass
+
+
+def read_file_to_dict(target_path):
+    reader = csv.reader(open(target_path))
+
+    dic = Counter()
+    for row in reader:
+        dic[row[0]] = int(row[1])
+
+    return dic
