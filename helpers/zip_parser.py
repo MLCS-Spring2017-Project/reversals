@@ -17,4 +17,4 @@ class ZipParser():
 
             print(zfname)
             zfile = ZipFile(zfname)
-            func(zfile, zfname)
+            func(zfile, zfname, dir)
