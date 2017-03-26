@@ -23,7 +23,7 @@ class ZipParser():
             year = zfname.split('/')[-1][:-4]
             members = zfile.namelist()
 
-            threshold = len(members) / 200
+            threshold = 0
             feature_points = []
             docfreqs = {
                 "affirmed": Counter(),
@@ -48,6 +48,7 @@ class ZipParser():
                 else:
                     status = "Reversed"
 
+                threshold += 1
                 text = zfile.open(fname).read().decode()
                 ngrams = generator(text)
                 lower_status = status.lower()
@@ -57,6 +58,31 @@ class ZipParser():
 
                 tup = (ngrams, status)
                 feature_points.append(tup)
+
+            threshold = float(threshold) / 200
+            affirmed_counter = Counter()
+            for gram in list(docfreqs["affirmed"]):
+                if docfreqs["affirmed"][gram] > threshold:
+                    affirmed_counter[gram] = docfreqs["affirmed"][gram]
+
+            docfreqs["affirmed"] = affirmed_counter
+
+            reversed_counter = Counter()
+            for gram in list(docfreqs["reversed"]):
+                if docfreqs["reversed"][gram] > threshold:
+                    reversed_counter[gram] = docfreqs["reversed"][gram]
+
+            docfreqs["reversed"] = reversed_counter
+
+            for i in range(len(feature_points)):
+                tup = feature_points[i]
+                lower_status = tup[1].lower()
+
+                counter = Counter()
+                for gram in tup[0]:
+                    if gram in docfreqs[lower_status]:
+                        counter[gram] = tup[0][gram]
+                feature_points[i] = (counter, tup[1])
 
             pickle.dump(feature_points, open(year + "-ngrams.pkl", "wb"))
             pickle.dump(docfreqs, open(year + "-docfreqs.pkl", "wb"))
