@@ -14,12 +14,11 @@ def save_dict_to_file(target_path, dict_to_save):
             if exc.errno != errno.EEXIST:
                 raise
 
-    writer = csv.writer(open(target_path, 'wb'))
-    if "X16PKBQNB5G0" in target_path:
-        print(len(dict_to_save.items()))
+    writer = csv.writer(open(target_path, 'w'))
 
     for key, value in dict_to_save.items():
         try:
             writer.writerow([key, value])
         except Exception as e:
+            print(str(e))
             pass
