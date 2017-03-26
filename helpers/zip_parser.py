@@ -50,7 +50,10 @@ class ZipParser():
 
                 text = zfile.open(fname).read().decode()
                 ngrams = generator(text)
-                docfreqs[status.lower()].update(ngrams)
+                lower_status = status.lower()
+
+                for gram in ngrams:
+                    docfreqs[lower_status][gram] += 1
 
                 tup = (ngrams, status)
                 feature_points.append(tup)
