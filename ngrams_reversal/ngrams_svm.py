@@ -3,6 +3,7 @@ import os
 import pickle
 from collections import Counter
 import time
+from tqdm import tqdm
 
 
 def dotProduct(d1, d2):
@@ -25,17 +26,16 @@ def pegasos_fast(x, y, max_epoch, lam):
     t = 1.0
     x_length = len(x)
     s = 1.0
-    while epoch < max_epoch:
+    for epoch in tqdm(range(max_epoch), desc='epoch'):
         start_time = time.time()
-        epoch += 1
-        for j in range(x_length):
+        for j in tqdm(range(x_length), desc='iter'):
             t += 1
             eta = 1.0 / (t * lam)
             s = (1 - eta * lam) * s
             if y[j] == 0:
-                label = -1.0
+                label = -1
             else:
-                label = 1.0
+                label = 1
             feature = x[j]
             if label * dotProduct(feature, weight) < 1:
                 temp = eta * label / s
@@ -46,30 +46,34 @@ def pegasos_fast(x, y, max_epoch, lam):
     return epoch_weight
 
 
-def svm_predict(X_test, weight):
-    if dotProduct(weight, X_test) > 0:
-        return 1
+def svm_predict(x, weight):
+    if dotProduct(weight, x) > 0:
+        return 1.0
     else:
-        return -1
+        return 0.0
+
+
+def accuracy_percent(x, y, weight):
+    predict_list = [svm_predict(i, weight) for i in x]
+    return sum([1 for i in range(len(y)) if y[i] == predict_list[i]]) * 100 / float(len(y))
 
 
 def main():
-    print('loading the dataset')
-    f = open('./../../x_data.pickle', 'rb')
-    x = pickle.load(f)
-    f.close()
-    f = open('./../../y_data.pickle', 'rb')
-    y_data = pickle.load(f)
-    f.close()
-    print('Split into Train and Test')
-    x_train = x[:1500]
-    x_test = x[1500:2000]
+    print('Loading the dataset')
+    with open('./../../x_data.pickle', 'rb') as handle:
+        x_data = pickle.load(handle)
+    with open('./../../y_data.pickle', 'rb') as handle:
+        y_data = pickle.load(handle)
+    print('Split into Training and Test data')
+    x_train = x_data[:1500]
+    x_test = x_data[1500:2000]
     y_train = y_data[:1500]
     y_test = y_data[1500:2000]
     print('Running SVM')
     svm_weight = pegasos_fast(x_train, y_train, 100, 0.01)
-    print('Actual value: ', y[0])
-    print('Prediction: ', svm_predict(x_test[0], svm_weight))
+    with open('./../../svm_weight.pickle', 'wb') as handle:
+        pickle.dump(svm_weight, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    print('\nAccuracy: ', accuracy_percent(x_test, y_test, svm_weight))
 
 
 if __name__ == '__main__':

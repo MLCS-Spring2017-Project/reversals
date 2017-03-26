@@ -35,7 +35,7 @@ def create_data():
                 i += 1
                 with open(os.path.join(root, name), mode='r') as infile:
                     reader = csv.reader(infile)
-                    dictionary = {rows[0]: rows[1] for rows in reader}
+                    dictionary = {rows[0]: int(rows[1]) for rows in reader}
 
                 x_data.append(dictionary)
                 y_data.append(caselevel_dict[caseid])
