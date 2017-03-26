@@ -1,9 +1,9 @@
-from helpers import ngrams
-from helpers import zip_parser
 import sys
 
+from helpers import zip_parser
+from helpers import utils
+
 if __name__ == '__main__':
-    generator = ngrams.NgramGenerator()
     parser = zip_parser.ZipParser()
 
-    parser.parse(sys.argv[1], generator.generate)
+    parser.parse(sys.argv[1], utils.zip_ngram_docq_helper)
