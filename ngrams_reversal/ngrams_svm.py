@@ -65,10 +65,10 @@ def main():
     with open('./../../y_data.pickle', 'rb') as handle:
         y_data = pickle.load(handle)
     print('Split into Training and Test data')
-    x_train = x_data[:1500]
-    x_test = x_data[1500:2000]
-    y_train = y_data[:1500]
-    y_test = y_data[1500:2000]
+    x_train = x_data[:700]
+    x_test = x_data[700:]
+    y_train = y_data[:700]
+    y_test = y_data[700:]
     print('Running SVM')
     svm_weight = pegasos_fast(x_train, y_train, 100, 0.01)
     with open('./../../svm_weight.pickle', 'wb') as handle:

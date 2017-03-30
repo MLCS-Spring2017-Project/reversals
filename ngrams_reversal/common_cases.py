@@ -8,13 +8,13 @@ import pickle
 
 def create_data():
 
-    fields = ['caseid', 'Reversed']
+    fields = ['caseid', 'partyWinning']
 
-    caselevel = pd.read_csv("./../../BloombergCASELEVEL_Touse.csv", skipinitialspace=True, usecols=fields)
+    caselevel = pd.read_csv("./../../BLCircuitALL_SC_Merged.csv", skipinitialspace=True, usecols=fields)
 
-    caselevel_dict = {k: v for k, v in zip(caselevel['caseid'], caselevel['Reversed'])}
+    caselevel_dict = {k: v for k, v in zip(caselevel['caseid'], caselevel['partyWinning'])}
 
-    caselevel_set = set(caselevel['caseid'])
+    # caselevel_set = set(caselevel['blcaseid'])
 
     path = "./../../data"
 
