@@ -49,7 +49,7 @@ class CircuitParser:
     """
     Dic contains following keys
     """
-    def parse(self, preheader, major):
+    def parse(self, preheader, major=""):
         global map_circuit_word_to_number
         results = dict()
 
