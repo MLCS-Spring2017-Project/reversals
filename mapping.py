@@ -41,8 +41,8 @@ with open(sys.argv[3], newline='') as csv_file:
         print(zfname)
         year = int(zfname.split('/')[-1][:-4])
 
-        if year < 1932:
-            continue
+        # if year < 1927:
+        #     continue
 
         zfile = ZipFile(zfname)
         members = zfile.namelist()
