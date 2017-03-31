@@ -32,7 +32,8 @@ court_stopwords = [
     "appellant",
     "appellants",
     "defendant"
-    "defendants"
+    "defendants",
+    "petitioner"
 ]
 
 
@@ -61,18 +62,21 @@ class CircuitParser:
         if h2:
             results['case_name'] = self.format(
                 ','.join(h2.text.split(',')[:-1]))
-        elif parties:
+        elif parties and len(parties) >= 2:
             appellee = parties[0].text
-            if "appellee" in appellee.lower():
-                appellee = appellee.translate(self.translator)
+            if "appellee" in appellee.lower() or "appellant" in appellee.lower():
+                appellee = self.basic_clear(appellee)
                 appellee = ' '.join(appellee.split(' ')[:-2])
 
                 appellent = parties[1].text
+                appellent = self.basic_clear(appellent)
                 appellent = appellent.translate(self.translator)
                 appellent = ' '.join(appellent.split(' ')[:-2])
 
                 results['case_name'] = \
                     self.format(appellee + " v. " + appellent)
+        elif parties and len(parties) == 1:
+            results['case_name'] = self.format(parties[0].find('p').text)
         elif "v." in center[1].text:
             results['case_name'] = self.format(center[1].text)
 
@@ -84,6 +88,8 @@ class CircuitParser:
                circuit_word in map_circuit_word_to_number:
                 results['circuit_number'] = \
                     map_circuit_word_to_number[circuit_word]
+            elif "district" in court_text:
+                results['circuit_number'] = court_text[-1]
 
         # except Exception as e:
         #     print(e)
@@ -93,12 +99,7 @@ class CircuitParser:
 
     def format(self, text):
         global court_stopwords
-        text = text.strip().lower()
-        text = text.replace('\n', ' ')
-        regex = re.compile(
-            r"[-]")
-        text = regex.sub(" ", text)
-        text = text.translate(self.translator)
+        text = self.basic_clear(text)
         text = text.split(' ')
         filtered_words = [word for word in text
                           if word not in self.stops and len(word.strip())]
@@ -114,3 +115,12 @@ class CircuitParser:
             text[1] = ' '.join(text[1].split(' ')[:self.max_around_v])
 
         return ' v '.join(text)
+
+    def basic_clear(self, text):
+        text = text.strip().lower()
+        text = text.replace('\n', ' ')
+        regex = re.compile(
+            r"[-]")
+        text = regex.sub(" ", text)
+        text = text.translate(self.translator)
+        return text
