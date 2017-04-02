@@ -4,11 +4,14 @@ import os
 import pickle
 import argparse
 
+
 from collections import Counter
 from glob import glob
 from zipfile import ZipFile
 from difflib import SequenceMatcher
 from helpers.circuit_parser import CircuitParser
+from multiprocessing import Manager, Pool
+from functools import partial
 
 
 class Mapper:
@@ -20,9 +23,9 @@ class Mapper:
 
         with open(self.args.dccsv, newline='') as file:
 
-            self.entry = csv.reader(file)
+            entry = csv.reader(file)
 
-            for row in self.entry:
+            for row in entry:
 
                 if row[1] not in self.link:
                     self.link[row[1]] = []
@@ -31,22 +34,28 @@ class Mapper:
                     self.link[row[1]].append(row[0])
 
     def run(self):
+
         self.parser = CircuitParser()
+        startingDir = os.getcwd()
+        os.chdir(self.args.circuit_data)
+        zipfiles = glob('*zip')
+        zipfiles = sorted(zipfiles)
+        os.chdir(startingDir)
 
-        with open(self.args.district_sorted, newline='') as csv_file:
-            self.csv_file = csv_file
+        # mgr = Manager()
+        # ns = mgr.Namespace()
+        # ns.df = self.csv_file
 
-            self.entry = csv.reader(self.csv_file)
-            os.chdir(self.args.circuit_data)
-            zipfiles = glob('*zip')
-            zipfiles = sorted(zipfiles)
+        # func = partial(self.link_year, self.csv_file)
 
-            for zfname in zipfiles:
-
-                print(zfname)
-                self.link_year(zfname)
+        # print(type(zipfiles) is list)
+        multi = Pool(4)
+        multi.map(self.link_year, zipfiles)
+        multi.join()
 
     def link_year(self, zfname):
+
+        print(zfname)
         year = int(zfname.split('/')[-1][:-4])
 
         if year < self.args.year:
@@ -74,19 +83,23 @@ class Mapper:
                 continue
 
             case_det["circuit_number"] = str(case_det["circuit_number"])
-            self.csv_file.seek(0)
-            next(self.entry, None)
 
-            for row in self.entry:
+            with open(self.args.district_sorted, newline='') as csv_instance:
 
-                date = row[4].split("/", 2)
-                date[2] = int(date[2])
-                row[1] = self.parser.format(row[1])
+                csv_instance.seek(0)
+                entry = csv.reader(csv_instance)
+                next(entry, None)
 
-                if date[2] <= year:
+                for row in entry:
 
-                    if abs(year - date[2]) <= 5:
-                        if case_det["circuit_number"] in self.link:
+                    date = row[4].split("/", 2)
+                    date[2] = int(date[2])
+                    row[1] = self.parser.format(row[1])
+
+                    if date[2] <= year:
+
+                        if abs(year - date[2]) <= 5 and case_det["circuit_number"] in self.link:
+
                             if row[2] in self.link[case_det["circuit_number"]]:
 
                                 if SequenceMatcher(None, case_det["case_name"],
@@ -104,28 +117,9 @@ class Mapper:
                             else:
                                 continue
                         else:
-
-                            if row[3].find(case_det["circuit_number"]) != -1:
-
-                                if SequenceMatcher(None, case_det["case_name"],
-                                                   row[1]).ratio() > \
-                                   self.similarity_score:
-
-                                    if docid not in found:
-                                        found[docid] = []
-
-                                    found[docid].append(row[0] + "/" +
-                                                        row[2])
-                                    print(docid, row[0])
-
-                                else:
-                                    continue
-                            else:
-                                continue
+                            continue
                     else:
-                        continue
-                else:
-                    break
+                        break
 
         path = "%s/%s_%s.pkl" % (self.pickle_folder, year, self.similarity_score)
         with open(path, 'wb') as handle:
@@ -133,6 +127,7 @@ class Mapper:
 
 
 if __name__ == '__main__':
+
     parser = argparse.ArgumentParser(description="District to Circuit Linker")
     parser.add_argument("dccsv", type=str, action="store",
                         help="District to Circuit Link csv")
