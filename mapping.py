@@ -2,6 +2,7 @@ import csv
 import sys
 import os
 import pickle
+import argparse
 
 from collections import Counter
 from glob import glob
@@ -11,11 +12,13 @@ from helpers.circuit_parser import CircuitParser
 
 
 class Mapper:
-    def __init__(self):
+    def __init__(self, args):
         self.link = dict()
+        self.args = args
         self.similarity_score = 0.9
+        self.pickle_folder = os.path.abspath(self.args.pickle_folder)
 
-        with open(sys.argv[1], newline='') as file:
+        with open(self.args.dccsv, newline='') as file:
 
             self.entry = csv.reader(file)
 
@@ -28,30 +31,28 @@ class Mapper:
                     self.link[row[1]].append(row[0])
 
     def run(self):
-        self.found = dict()
         self.parser = CircuitParser()
 
-        with open(sys.argv[3], newline='') as csv_file:
+        with open(self.args.district_sorted, newline='') as csv_file:
             self.csv_file = csv_file
 
             self.entry = csv.reader(self.csv_file)
-            os.chdir(sys.argv[2])
+            os.chdir(self.args.circuit_data)
             zipfiles = glob('*zip')
+            zipfiles = sorted(zipfiles)
 
             for zfname in zipfiles:
 
                 print(zfname)
                 self.link_year(zfname)
 
-        with open('circuit_to_district_link_0.7.pickle', 'wb') as handle:
-            pickle.dump(self.found, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
     def link_year(self, zfname):
         year = int(zfname.split('/')[-1][:-4])
 
-        # if year < 1927:
-        #     continue
+        if year < self.args.year:
+            return
 
+        found = dict()
         zfile = ZipFile(zfname)
         members = zfile.namelist()
 
@@ -91,10 +92,10 @@ class Mapper:
                                 if SequenceMatcher(None, case_det["case_name"],
                                    row[1]).ratio() > self.similarity_score:
 
-                                    if docid not in self.found:
-                                        self.found[docid] = []
+                                    if docid not in found:
+                                        found[docid] = []
 
-                                    self.found[docid].append(row[0] + "/" +
+                                    found[docid].append(row[0] + "/" +
                                                              row[2])
                                     print(docid, row[0], row[2], "Link")
 
@@ -110,11 +111,11 @@ class Mapper:
                                                    row[1]).ratio() > \
                                    self.similarity_score:
 
-                                    if docid not in self.found:
-                                        self.found[docid] = []
+                                    if docid not in found:
+                                        found[docid] = []
 
-                                    self.found[docid].append(row[0] + "/" +
-                                                             row[2])
+                                    found[docid].append(row[0] + "/" +
+                                                        row[2])
                                     print(docid, row[0])
 
                                 else:
@@ -126,7 +127,23 @@ class Mapper:
                 else:
                     break
 
+        path = "%s/%s_%s.pkl" % (self.pickle_folder, year, self.similarity_score)
+        with open(path, 'wb') as handle:
+            pickle.dump(found, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
 
 if __name__ == '__main__':
-    mapper = Mapper()
+    parser = argparse.ArgumentParser(description="District to Circuit Linker")
+    parser.add_argument("dccsv", type=str, action="store",
+                        help="District to Circuit Link csv")
+    parser.add_argument("circuit_data", type=str, action="store",
+                        help="Folder which contains yearwise circuit data")
+    parser.add_argument("district_sorted", type=str, action="store",
+                        help="Year wise sorted csv")
+    parser.add_argument("pickle_folder", type=str, action="store", default=".",
+                        help="Folder in which pickles will be stored")
+    parser.add_argument("--year", "-y", type=int, action="store", default=1924,
+                        help="Year from where to start linking")
+    args = parser.parse_args()
+    mapper = Mapper(args)
     mapper.run()
