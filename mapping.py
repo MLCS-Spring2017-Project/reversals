@@ -3,6 +3,7 @@ import sys
 import os
 import pickle
 import argparse
+import multiprocessing
 
 
 from collections import Counter
@@ -10,15 +11,14 @@ from glob import glob
 from zipfile import ZipFile
 from difflib import SequenceMatcher
 from helpers.circuit_parser import CircuitParser
-from multiprocessing import Manager, Pool
-from functools import partial
+from joblib import Parallel, delayed
 
 
 class Mapper:
     def __init__(self, args):
         self.link = dict()
         self.args = args
-        self.similarity_score = 0.9
+        self.similarity_score = 0.95
         self.pickle_folder = os.path.abspath(self.args.pickle_folder)
 
         with open(self.args.dccsv, newline='') as file:
@@ -36,22 +36,15 @@ class Mapper:
     def run(self):
 
         self.parser = CircuitParser()
-        startingDir = os.getcwd()
+
+        self.startingDir = os.getcwd()
         os.chdir(self.args.circuit_data)
         zipfiles = glob('*zip')
         zipfiles = sorted(zipfiles)
-        os.chdir(startingDir)
 
-        # mgr = Manager()
-        # ns = mgr.Namespace()
-        # ns.df = self.csv_file
+        num_cores = multiprocessing.cpu_count()
 
-        # func = partial(self.link_year, self.csv_file)
-
-        # print(type(zipfiles) is list)
-        multi = Pool(4)
-        multi.map(self.link_year, zipfiles)
-        multi.join()
+        Parallel(n_jobs=num_cores)(delayed(self.link_year)(f) for f in zipfiles)
 
     def link_year(self, zfname):
 
@@ -84,6 +77,7 @@ class Mapper:
 
             case_det["circuit_number"] = str(case_det["circuit_number"])
 
+            os.chdir(self.startingDir)
             with open(self.args.district_sorted, newline='') as csv_instance:
 
                 csv_instance.seek(0)
@@ -110,7 +104,6 @@ class Mapper:
 
                                     found[docid].append(row[0] + "/" +
                                                              row[2])
-                                    print(docid, row[0], row[2], "Link")
 
                                 else:
                                     continue
@@ -121,9 +114,12 @@ class Mapper:
                     else:
                         break
 
+            os.chdir(self.args.circuit_data)
         path = "%s/%s_%s.pkl" % (self.pickle_folder, year, self.similarity_score)
         with open(path, 'wb') as handle:
             pickle.dump(found, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+        return 1
 
 
 if __name__ == '__main__':
