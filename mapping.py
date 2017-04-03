@@ -5,7 +5,7 @@ import pickle
 import argparse
 import multiprocessing
 
-
+from fuzzywuzzy import fuzz
 from collections import Counter
 from glob import glob
 from zipfile import ZipFile
@@ -18,7 +18,7 @@ class Mapper:
     def __init__(self, args):
         self.link = dict()
         self.args = args
-        self.similarity_score = 0.95
+        self.similarity_score = 95
         self.pickle_folder = os.path.abspath(self.args.pickle_folder)
 
         with open(self.args.dccsv, newline='') as file:
@@ -96,8 +96,8 @@ class Mapper:
 
                             if row[2] in self.link[case_det["circuit_number"]]:
 
-                                if SequenceMatcher(None, case_det["case_name"],
-                                   row[1]).ratio() > self.similarity_score:
+                                if fuzz.token_sort_ratio(case_det["case_name"],
+                                   row[1]) > self.similarity_score:
 
                                     if docid not in found:
                                         found[docid] = []
@@ -118,7 +118,7 @@ class Mapper:
         path = "%s/%s_%s.pkl" % (self.pickle_folder, year, self.similarity_score)
         with open(path, 'wb') as handle:
             pickle.dump(found, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
+        print("[+] %s finished", year)
         return 1
 
 
