@@ -150,7 +150,8 @@ class NgramGenerator:
 
     def generate_ngrams_row(self, row, dir):
         docid = row["caseid"]
-        fname = "%s/%s" % (dir. docid)
+        folder = row["folder"]
+        fname = "%s/%s/%s" % (dir. folder, docid)
 
         if row.empty:
             continue
