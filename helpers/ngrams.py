@@ -145,34 +145,35 @@ class NgramGenerator:
 
         return pos_tags
 
-    def generate_ngram_txts(self, dir):
+    def generate_ngram_txts(self, dir, ngram_dir):
 
         num_cores = multiprocessing.cpu_count()
-        Parallel(n_jobs=num_cores)(delayed(self.generate_ngrams_row)(row, dir) for index, row in self.df.iterrows())
+        Parallel(n_jobs=num_cores)(delayed(self.generate_ngrams_row)(row, dir, ngram_dir) for index, row in self.df.iterrows())
 
-    def generate_ngrams_row(self, row, dir):
+    def generate_ngrams_row(self, row, dir, ngram_dir):
         docid = row["caseid"]
+        print(docid)
         folder = row["folder"]
-        fname = "%s/%s/%s" % (dir. folder, docid)
+        fname = "%s/%s/%s.txt" % (dir, folder, docid)
 
         if row.empty:
-            continue
-        elif row['Affirmed'].tolist()[0] == 0.0 \
-                and row['Reversed'].tolist()[0] == 0.0:
-            continue
-        elif row['Affirmed'].tolist()[0] == 1.0:
-            status = "Affirmed"
-        else:
-            status = "Reversed"
+            return
+        # elif row['Affirmed'].tolist()[0] == 0.0 \
+        #         and row['Reversed'].tolist()[0] == 0.0:
+        #     return
+        # elif row['Affirmed'].tolist()[0] == 1.0:
+        #     status = "Affirmed"
+        # else:
+        #     status = "Reversed"
 
-        with open(fname) as f:
-            text = f.read().decode('utf-8')
-            text = text.lower().split("judge", maxsep=1)
+        with open(fname, "r") as f:
+            text = f.read()
+            text = text.lower().split("judge", maxsplit=1)
             if len(text) == 2:
                 text = text[1]
             else:
                 text = "judge".join(text)
             ngrams = self.generate(text)
-
-        tup = (ngrams, status)
-        utils.save_dict_to_file(dir + "/" + year + "/" + docid, ngrams)
+        year = row["year"]
+        ngram_file = "%s/%s/%s" % (ngram_dir, year, docid)
+        utils.save_dict_to_file(ngram_file, ngrams)
