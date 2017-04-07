@@ -11,18 +11,23 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("-n", "--ngram", action="store_true")
+    parser.add_argument("-d", "--dir", action="store_true", type=str, default=".")
     parser.add_argument("-t", "--train", action="store_true")
     parser.add_argument("-p", "--predict", action="store_true")
     parser.add_argument("file", type=str)
     args = parser.parse_args()
 
     if args.ngram:
-        parser = zip_parser.ZipParser()
         generator = ngrams.NgramGenerator()
-        parser.parse(args.file, generator.generate_ngram_txts)
+        generator.generate_ngram_txts(args.dir)
+
+    classifier_instance = classifier.Classifier()
+    classifier_instance.load_classifier()
 
     if args.train:
-        classifier_instance = classifier.Classifier()
-        dic = classifier_instance.fetch(args.file)
-        classifier_instance.train(dic)
-        classifier_instance.predict(os.path.dirname(os.path.realpath(__file__)) + "/../ngram_test")
+        datasets = classifier_instance.fetch(args.file)
+        classifier_instance.train(datasets)
+        classifier_instance.save_classifier()
+
+    if args.predict:
+        classifier_instance.predict(args.predict)
