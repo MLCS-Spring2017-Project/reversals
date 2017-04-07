@@ -145,8 +145,9 @@ class NgramGenerator:
         return pos_tags
 
     def generate_ngram_txts(self, dir):
-        for index, row in self.df.iterrows():
-            self.generate_ngrams_row(row, dir)
+
+        num_cores = multiprocessing.cpu_count()
+        Parallel(n_jobs=num_cores)(delayed(self.generate_ngrams_row)(row, dir) for index, row in self.df.iterrows())
 
     def generate_ngrams_row(self, row, dir):
         docid = row["caseid"]

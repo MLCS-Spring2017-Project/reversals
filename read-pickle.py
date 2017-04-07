@@ -1,5 +1,5 @@
 import pickle
 
 if __name__ == '__main__':
-    dic = pickle.load(open("data/1880-ngrams.pkl", "rb"))
+    dic = pickle.load(open("./new_pickle.pkl", "rb"))
     print(dic[0:])
