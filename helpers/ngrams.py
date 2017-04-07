@@ -2,6 +2,7 @@ import nltk
 import string
 import pickle
 import os
+import multiprocessing
 
 from helpers import utils
 from nltk.tokenize import word_tokenize
@@ -9,7 +10,7 @@ from nltk.util import ngrams
 from nltk.corpus import stopwords
 from collections import Counter
 from nltk import CFG
-
+from joblib import Parallel, delayed
 
 grammar_string = """
   S -> TWO | THREE | FOUR
