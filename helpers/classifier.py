@@ -59,7 +59,7 @@ class Classifier:
         y = self.encoder.fit_transform(y)
 
         if self.first_call:
-            self.classifier.fit(X, y, classes=[0, 1])
+            self.classifier.fit(X, y)
         else:
             self.classifier.fit(X, y)
 
@@ -85,11 +85,12 @@ class Classifier:
         curr_dir = os.getcwd()
         os.chdir(dir)
         files = glob("./**/*")
-
+        print(len(files))
         datapoints = []
         classes = self.encoder.classes_
         count = 0
         for fname in files:
+            print(fname)
             docid = fname.split('/')[-1]
             case = self.dic.loc[self.dic['caseid'] == docid]
             status = self.check_case_status(case)
@@ -97,7 +98,6 @@ class Classifier:
             X = self.vectorizer.transform(test_data)
 
             predicted_status = self.classifier.predict(X)
-
             count += status == classes[predicted_status][0]
 
         os.chdir(curr_dir)

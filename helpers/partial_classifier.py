@@ -3,7 +3,7 @@ from nltk import compat
 from sklearn.naive_bayes import MultinomialNB
 from glob import glob
 from sklearn.externals import joblib
-from sklearn.feature_extraction.text import HashingVectorizer
+from sklearn.feature_extraction import text
 from sklearn.preprocessing import LabelEncoder
 
 from helpers import utils
@@ -11,6 +11,20 @@ import os
 import pickle
 
 CLASSIFIER_PICKLE_PATH = "partial_classifier.pkl"
+
+court_stopwords = [
+    "plaintiff",
+    "plaintiffs",
+    "appellee",
+    "appellees",
+    "appellant",
+    "appellants",
+    "defendant"
+    "defendants",
+    "petitioner"
+]
+
+stopwords = text.ENGLISH_STOP_WORDS.union(court_stopwords)
 
 
 class PartialClassifier:
@@ -20,13 +34,12 @@ class PartialClassifier:
         self.dic = pickle.load(open(self.affirm_reverse_path, "rb"))
         self.first_call = False
         self.encoder = LabelEncoder()
-        self.vectorizer = HashingVectorizer(charset="latin-1")
+        self.vectorizer = text.HashingVectorizer(analyzer="word", ngram_range=(1, 4), stop_words=stopwords, non_negative=True)
 
     def fetch(self, dir):
         curr_dir = os.getcwd()
         os.chdir(dir)
         files = glob("./**/*.txt")
-
         datasets = []
         for fname in files:
             # print(fname)
@@ -94,12 +107,14 @@ class PartialClassifier:
             docid = fname.split('/')[-1][:-4]
             case = self.dic.loc[self.dic['caseid'] == docid]
             status = self.check_case_status(case)
+            if not status:
+                continue
             validation_data.append(utils.text_from_district_file(fname))
             validation_target.append(status)
 
         X = self.vectorizer.transform(validation_data)
-        y = self.encoder.transform(y)
-        score = clf.score(X_validation, target_validation)
+        y = self.encoder.transform(validation_target)
+        score = self.classifier.score(X, y)
 
         print(score)
         os.chdir(curr_dir)
