@@ -1,17 +1,19 @@
 import os
 import shutil
 
-src = ""
-dest = ""
+src = "ngrams/train"
+dest = "ngrams/test"
 
-for folder in os.listdir():
+for folder in os.listdir(src):
 
-    count = len(os.listdir(folder)) / 10
+    count = len(os.listdir(src + "/" + folder)) / 10
 
-    for file in os.listdir(folder):
+    for file in os.listdir(src + "/" + folder):
 
         if count < 1:
             break
+        if not os.path.exists(dest + "/" + folder):
+            os.makedirs(dest + "/" + folder)
 
-        shutil.move(src, dest)
+        shutil.move(src + "/" + folder + "/" + file, dest + "/" + folder + "/" + file)
         count -= 1
