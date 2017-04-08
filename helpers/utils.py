@@ -34,3 +34,14 @@ def read_file_to_dict(target_path):
         dic[row[0]] = int(row[1])
 
     return dic
+
+
+def text_from_district_file(path):
+    with open(path, 'r') as f:
+        text = f.read()
+        text = text.lower().split("judge", maxsplit=1)
+        if len(text) == 2:
+            text = text[1]
+        else:
+            text = "judge".join(text)
+    return text

@@ -5,7 +5,7 @@ import os
 from helpers import zip_parser
 from helpers import ngrams
 from helpers import utils
-from helpers import classifier
+from helpers import classifier, partial_classifier
 
 if __name__ == '__main__':
     import argparse
@@ -15,6 +15,7 @@ if __name__ == '__main__':
     parser.add_argument("-d", "--dir", action="store", default=".")
     parser.add_argument("-t", "--train", action="store_true")
     parser.add_argument("-p", "--predict", action="store_true")
+    parser.add_argument("-pa", "--partial", action="store_true")
     parser.add_argument("file", type=str, action="store", nargs="?")
     args = parser.parse_args()
 
@@ -22,7 +23,11 @@ if __name__ == '__main__':
         generator = ngrams.NgramGenerator()
         generator.generate_ngram_txts(args.dir, args.ngram_dir)
 
-    classifier_instance = classifier.Classifier()
+    if args.partial:
+        classifier_instance = partial_classifier.PartialClassifier()
+    else:
+        classifier_instance = classifier.Classifier()
+
     classifier_instance.load_classifier()
 
     if args.train:
@@ -31,4 +36,4 @@ if __name__ == '__main__':
         classifier_instance.save_classifier()
 
     if args.predict:
-        classifier_instance.predict(args.predict)
+        classifier_instance.predict(args.file)
