@@ -11,24 +11,24 @@ def main():
         x_data = pickle.load(handle)
     with open('./../../y_data.pickle', 'rb') as handle:
         y_data = pickle.load(handle)
-    print('Split into Training and Test data')
-    x_train = x_data[:1500]
-    x_test = x_data[1500:]
-    y_train = y_data[:1500]
-    y_test = y_data[1500:]
 
     print('using DictVectorizer to vectorize the sparse data')
     v = DictVectorizer(sparse=False)
-    x_train_vectorized = v.fit_transform(x_train)
-    x_test_vectorized = v.fit_transform(x_test)
+    x_data_vectorized = v.fit_transform(x_data)
     print('dictVectorising complete')
+
+    print('Split into Training and Test data')
+    x_train = x_data_vectorized[:1500]
+    x_test = x_data_vectorized[1500:]
+    y_train = y_data[:1500]
+    y_test = y_data[1500:]
 
     print('started learing')
     clf = RandomForestClassifier(n_jobs=2)
-    clf.fit(x_train_vectorized, y_train)
+    clf.fit(x_train, y_train)
     print('learning complete')
 
-    print('calculating accuracy')
+    print('making prediction and calculating accuracy')
     y_predictions = clf.predict(x_test)
 
     accuracy = 0.0
