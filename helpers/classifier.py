@@ -1,6 +1,9 @@
 from nltk.classify import SklearnClassifier
 from nltk import compat
-from sklearn.naive_bayes import MultinomialNB
+from sklearn.naive_bayes import BernoulliNB, MultinomialNB
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC, LinearSVC
+from sklearn.ensemble import RandomForestClassifier
 from glob import glob
 from sklearn.externals import joblib
 from sklearn.feature_extraction import DictVectorizer
@@ -15,7 +18,10 @@ CLASSIFIER_PICKLE_PATH = "classifier.pkl"
 
 class Classifier:
     def __init__(self, dtype=float, sparse=True):
-        self.classifier = MultinomialNB()
+        global CLASSIFIER_PICKLE_PATH
+        self.classifier = RandomForestClassifier()
+        CLASSIFIER_PICKLE_PATH = \
+            self.classifier.__class__.__name__ + "_" + CLASSIFIER_PICKLE_PATH
         self.affirm_reverse_path = os.path.abspath("district_affirm_reverse.pkl")
         self.dic = pickle.load(open(self.affirm_reverse_path, "rb"))
         self.first_call = False
@@ -89,16 +95,21 @@ class Classifier:
         datapoints = []
         classes = self.encoder.classes_
         count = 0
+        total = 0
         for fname in files:
-            print(fname)
             docid = fname.split('/')[-1]
             case = self.dic.loc[self.dic['caseid'] == docid]
             status = self.check_case_status(case)
+            if not status:
+                continue
+
             test_data = utils.read_file_to_dict(fname)
             X = self.vectorizer.transform(test_data)
 
             predicted_status = self.classifier.predict(X)
             count += status == classes[predicted_status][0]
+            total += 1
 
         os.chdir(curr_dir)
-        print(float(count) / len(files))
+        print(total)
+        print(float(count) / total)
