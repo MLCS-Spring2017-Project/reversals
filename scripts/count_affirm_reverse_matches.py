@@ -10,6 +10,10 @@ from joblib import Parallel, delayed
 dir = sys.argv[1]
 dic = pickle.load(open("affirm_reverse.pkl", 'rb'))
 
+df = pickle.load(open("district_affirm_reverse.pkl", "rb"))
+
+file_path = os.path.dirname(os.path.abspath(__file__))
+file_path = os.path.join(file_path, os.pardir)
 os.chdir(dir)
 
 zipfiles = glob('*zip')
@@ -21,12 +25,15 @@ total = 0
 def file_count(zfname):
     global count, total
     year = zfname[:-4]
-    if int(year) < 1975:
+    if int(year) < 1924:
         return
 
     zfile = ZipFile(zfname)
     members = zfile.namelist()
-
+    pickle_file = "%s_95.pkl" % year
+    pickle_file = os.path.join(file_path, "pickles", pickle_file)
+    with open(pickle_file, "rb") as f:
+        match_dic = pickle.load(f)
     for fname in members:
 
         if not fname.endswith('-maj.txt'):
@@ -37,11 +44,11 @@ def file_count(zfname):
 
         case = dic.loc[dic['caseid'] == caseid]
 
-        if case.empty:
-            print("%s/%s" % (year + "_complete", caseid))
+        if case.empty and caseid in match_dic:
+            print("%s/%s" % (year + "_complete", caseid), match_dic[caseid])
+            count += 1
             continue
 
-        count += 1
     print(count, total)
 
 
