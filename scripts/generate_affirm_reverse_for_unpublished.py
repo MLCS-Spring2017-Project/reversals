@@ -29,7 +29,7 @@ reverse_list = ["reversed", "reverse", "reversing", "reverses", "reversal"]
 def set_affirm_reverse(zfname):
     global count, total
     year = zfname[:-4]
-    if int(year) < 1975:
+    if int(year) < 1924:
         return
     print(year)
 
