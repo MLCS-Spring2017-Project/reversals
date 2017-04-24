@@ -29,7 +29,7 @@ def set_affirm_reverse(zfname):
     global count, total
     year = zfname[:-4]
     if int(year) < 1924:
-        return
+        return {}
     print(year)
     affirm_reverse_dict = {}
     zfile = ZipFile(zfname)
