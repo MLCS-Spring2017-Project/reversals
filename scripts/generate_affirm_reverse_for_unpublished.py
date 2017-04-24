@@ -70,7 +70,7 @@ def set_affirm_reverse(zfname):
                 continue
             else:
                 print(caseid, status)
-                affirm_reverse_dict[caseid] = status
+                affirm_reverse_dict[caseid] = (year, match_dic[caseid], status)
 
     pickle.dump(affirm_reverse_dict, open("unpublished_affirm_reverse.pkl", "wb"))
 
