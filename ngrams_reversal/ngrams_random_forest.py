@@ -18,15 +18,22 @@ def main():
     print('dictVectorising complete')
 
     print('Split into Training and Test data')
-    x_train = x_data_vectorized[:1500]
-    x_test = x_data_vectorized[1500:]
-    y_train = y_data[:1500]
-    y_test = y_data[1500:]
+    x_train = x_data_vectorized[:1800]
+    x_test = x_data_vectorized[1800:]
+    y_train = y_data[:1800]
+    y_test = y_data[1800:]
 
     print('started learing')
     clf = RandomForestClassifier(n_jobs=2)
     clf.fit(x_train, y_train)
     print('learning complete')
+
+    print('saving vectorizer and classifier in pickle')
+    random_forest_classifier = {}
+    random_forest_classifier['classifier'] = clf
+    random_forest_classifier['vectorizer'] = v
+    with open('../../RandomForestClassifier.pkl', 'wb') as handle:
+        pickle.dump(random_forest_classifier, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     print('making prediction and calculating accuracy')
     y_predictions = clf.predict(x_test)
