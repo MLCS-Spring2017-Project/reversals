@@ -38,6 +38,8 @@ def set_affirm_reverse(zfname):
     pickle_file = os.path.join(file_path, "pickles", pickle_file)
     with open(pickle_file, "rb") as f:
         match_dic = pickle.load(f)
+    total = 0
+    count = 0
     for fname in members:
 
         if not fname.endswith('-maj.txt'):
@@ -68,9 +70,10 @@ def set_affirm_reverse(zfname):
             if len(status) == 0:
                 continue
             else:
+                count += 1
                 print(caseid, status)
                 affirm_reverse_dict[caseid] = (year, match_dic[caseid], status)
-
+    print(count, total)
     return affirm_reverse_dict
 
 
