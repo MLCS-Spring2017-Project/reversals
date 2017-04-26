@@ -36,10 +36,12 @@ def set_affirm_reverse(zfname):
     members = zfile.namelist()
     pickle_file = "%s_95.pkl" % year
     pickle_file = os.path.join(file_path, "pickles", pickle_file)
+
     with open(pickle_file, "rb") as f:
         match_dic = pickle.load(f)
     total = 0
     count = 0
+
     for fname in members:
 
         if not fname.endswith('-maj.txt'):
@@ -50,7 +52,9 @@ def set_affirm_reverse(zfname):
 
         case = dic.loc[dic['caseid'] == caseid]
         status = ""
+
         if case.empty and caseid in match_dic:
+
             data = zfile.read(fname).decode()
             data = re.sub(r'![\W\s_]+', "", data)
             data = data.lower().split(" ")
@@ -59,13 +63,14 @@ def set_affirm_reverse(zfname):
                     status = "Affirmed"
                     break
 
-            for i in reverse_list:
-                if i in data:
-                    if status == "Affirmed":
-                        status = ""
-                    else:
+            if status != "Affirmed":
+                for i in reverse_list:
+                    if i in data:
+                        # if status == "Affirmed":
+                        #     status = ""
+                        # else:
                         status = "Reversed"
-                    break
+                        break
 
             if len(status) == 0:
                 continue
