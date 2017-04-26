@@ -18,19 +18,19 @@ os.chdir(dir)
 zipfiles = glob('*zip')
 zipfiles = sorted(zipfiles)
 
-count = 0
-total = 0
 
 affirm_list = ["affirmed", "affirm", "affirming", "affirms", "dismissed"]
 reverse_list = ["reversed", "reverse", "reversing", "reverses", "reversal"]
 
 
 def set_affirm_reverse(zfname):
-    global count, total
+
+    count = 0
+    total = 0
     year = zfname[:-4]
     if int(year) < 1924:
         return {}
-    print(year)
+    # print(year)
     affirm_reverse_dict = {}
     zfile = ZipFile(zfname)
     members = zfile.namelist()
@@ -71,16 +71,26 @@ def set_affirm_reverse(zfname):
                 continue
             else:
                 count += 1
-                print(caseid, status)
+                # print(caseid, status)
                 affirm_reverse_dict[caseid] = (year, match_dic[caseid], status)
-    print(count, total)
-    return affirm_reverse_dict
+
+    return(count, total)
+    # return affirm_reverse_dict
 
 
 if __name__ == '__main__':
     num_cores = multiprocessing.cpu_count()
     r = Parallel(n_jobs=num_cores)(delayed(set_affirm_reverse)(f) for f in zipfiles)
-    affirm_reverse_dict = {}
-    for dic in r:
-        affirm_reverse_dict.update(dic)
-    pickle.dump(affirm_reverse_dict, open("unpublished_affirm_reverse.pkl", "wb"))
+    total_matches = 0
+    total_cases = 0
+
+    for tups in r:
+
+        total_matches += tups[0]
+        total_cases += tups[1]
+
+    print(total_matches, total_cases)
+    # affirm_reverse_dict = {}
+    # for d in r:
+    #     affirm_reverse_dict.update(d)
+    # pickle.dump(affirm_reverse_dict, open("unpublished_affirm_reverse.pkl", "wb"))
