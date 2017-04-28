@@ -54,17 +54,16 @@ def generate_case_data_files(caseterm_dict, target_dir):
     i=0
 
     for caseid in caseterm_dict:
-        data_dir = "./../../"+str(caseterm_dict[caseid])
-        filepath = "maj/"+str(caseid)+"-maj.p"
+        terms = [x for x in range(caseterm_dict[caseid]-5, caseterm_dict[caseid]+1)]
+        for term in terms:
+            data_dir = "./../../"+str(term)
+            filepath = "maj/"+str(caseid)+"-maj.p"
 
-        if helper.is_valid_file(data_dir, filepath):
-            case_data = get_case_data(os.path.join(data_dir,filepath))
-            # target_path = os.path.join(data_dir, 'txt')
-            write_file(caseid, case_data, os.path.join(target_dir,str(caseterm_dict[caseid])))
-        else:
-            print('invalid path : ',os.path.join(data_dir,filepath))
-            i+= 1
-            continue
+            if helper.is_valid_file(data_dir, filepath):
+                case_data = get_case_data(os.path.join(data_dir,filepath))
+                write_file(caseid, case_data, os.path.join(target_dir,str(caseterm_dict[caseid])))
+                i+= 1
+                break
     print(i)
 
 def generate_dataset():
@@ -74,8 +73,6 @@ def generate_dataset():
     caselevel = pd.read_csv("./../../BLCircuitALL_SC_Merged.csv", skipinitialspace=True, usecols=fields)
 
     caseterm_dict = {k: v for k, v in zip(caselevel['caseid'], caselevel['term'])}
-
-    # caselevel_set = set(caselevel['caseid'])
 
     base_dir = "./../../datafile"
 
@@ -93,9 +90,10 @@ def generate_dataset():
 
     to_process = None
 
-    for root, dirs, files in os.walk(target_dir1):
-        for d in dirs:
-            generate_ngrams.process_dir(os.path.join(root, d), os.path.join(target_dir2, d), 2, 4, b_verbose=True, b_size=to_process)
+    num_cores = multiprocessing.cpu_count()
+
+    Parallel(n_jobs=num_cores)(delayed(generate_ngrams.process_dir)(os.path.join(root, d), os.path.join(target_dir2, d), 2, 4, b_verbose=True, b_size=to_process) for root, dirs, files in os.walk(target_dir1) for d in dirs)
+
 
 
 
