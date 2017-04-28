@@ -5,6 +5,8 @@ import os
 import sys
 import helper
 import generate_ngrams
+import multiprocessing
+from joblib import Parallel, delayed
 
 def get_case_data(cfile):
 
