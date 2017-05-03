@@ -8,7 +8,7 @@ from glob import glob
 from sklearn.externals import joblib
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.preprocessing import LabelEncoder
-
+from sklearn import metrics
 from helpers import utils
 import os
 import pickle
@@ -19,7 +19,7 @@ CLASSIFIER_PICKLE_PATH = "classifier.pkl"
 class Classifier:
     def __init__(self, dtype=float, sparse=True):
         global CLASSIFIER_PICKLE_PATH
-        self.classifier = RandomForestClassifier()
+        self.classifier = LinearSVC()
         CLASSIFIER_PICKLE_PATH = \
             self.classifier.__class__.__name__ + "_" + CLASSIFIER_PICKLE_PATH
         self.affirm_reverse_path = os.path.abspath("district_affirm_reverse.pkl")
@@ -96,6 +96,8 @@ class Classifier:
         classes = self.encoder.classes_
         count = 0
         total = 0
+        y = []
+        predicted = []
         for fname in files:
             docid = fname.split('/')[-1]
             case = self.dic.loc[self.dic['caseid'] == docid]
@@ -103,13 +105,15 @@ class Classifier:
             if not status:
                 continue
 
-            test_data = utils.read_file_to_dict(fname)
-            X = self.vectorizer.transform(test_data)
+            X = utils.read_file_to_dict(fname)
+            datapoints.append(X)
+            y.append(self.encoder.transform([status])[0])
 
-            predicted_status = self.classifier.predict(X)
-            count += status == classes[predicted_status][0]
-            total += 1
+        datapoints = self.vectorizer.transform(datapoints)
+        predicted_status = self.classifier.predict(datapoints)
 
         os.chdir(curr_dir)
-        print(total)
-        print(float(count) / total)
+        fpr, tpr, thresholds = metrics.roc_curve(y, predicted_status)
+
+        print(metrics.auc(fpr, tpr))
+        print(metrics.confusion_matrix(y, predicted_status))
