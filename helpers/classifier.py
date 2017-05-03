@@ -8,6 +8,7 @@ from glob import glob
 from sklearn.externals import joblib
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.preprocessing import LabelEncoder
+from imblearn.over_sampling import RandomOverSampler
 from sklearn import metrics
 from helpers import utils
 import os
@@ -19,7 +20,7 @@ CLASSIFIER_PICKLE_PATH = "classifier.pkl"
 class Classifier:
     def __init__(self, dtype=float, sparse=True):
         global CLASSIFIER_PICKLE_PATH
-        self.classifier = LinearSVC()
+        self.classifier = RandomForestClassifier()
         CLASSIFIER_PICKLE_PATH = \
             self.classifier.__class__.__name__ + "_" + CLASSIFIER_PICKLE_PATH
         self.affirm_reverse_path = os.path.abspath("district_affirm_reverse.pkl")
@@ -63,11 +64,12 @@ class Classifier:
         X, y = list(compat.izip(*train_data))
         X = self.vectorizer.fit_transform(X)
         y = self.encoder.fit_transform(y)
-
+        ros = RandomOverSampler(random_state=42)
+        X_res, y_res = ros.fit_sample(X.toarray(), y.toarray())
         if self.first_call:
-            self.classifier.fit(X, y)
+            self.classifier.fit(X_res, y_res)
         else:
-            self.classifier.fit(X, y)
+            self.classifier.fit(X_res, y_res)
 
     def save_classifier(self):
         dump = {
