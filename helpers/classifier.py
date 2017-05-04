@@ -13,8 +13,10 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn import metrics
 from helpers import utils
 from scipy.signal import resample
+from random import randint
 import os
 import pickle
+import copy
 
 CLASSIFIER_PICKLE_PATH = "classifier.pkl"
 
@@ -68,9 +70,10 @@ class Classifier:
         affirm_count = len(data["Affirmed"])
         print(reverse_count, affirm_count)
         if reverse_count < affirm_count:
-            data["Reversed"] = resample(data["Reversed"], affirm_count)
-            print(len(data["Reversed"]))
-
+            for i in range(0, affirm_count - reverse_count):
+                rand = randint(reverse_count)
+                data["Reversed"].append(copy.deepcopy(data["Reversed"][rand]))
+        print(len(Data["Reversed"]))
         return data["Affirmed"] + data["Reversed"]
 
     def train(self, train_data):
