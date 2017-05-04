@@ -3,17 +3,18 @@ import numpy as np
 from pathlib import Path
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.ensemble import RandomForestClassifier
+from sklearn import metrics
 
 
 def main():
     print('Loading the dataset')
-    with open('./../../x_train.pickle', 'rb') as handle:
+    with open('./../../x_train_judges.pickle', 'rb') as handle:
         x_data_train = pickle.load(handle)
-    with open('./../../x_test.pickle', 'rb') as handle:
+    with open('./../../x_test_judges.pickle', 'rb') as handle:
         x_data_test = pickle.load(handle)
-    with open('./../../y_train.pickle', 'rb') as handle:
+    with open('./../../y_train_judges.pickle', 'rb') as handle:
         y_train = pickle.load(handle)
-    with open('./../../y_test.pickle', 'rb') as handle:
+    with open('./../../y_test_judges.pickle', 'rb') as handle:
         y_test = pickle.load(handle)
 
     x_data = x_data_train + x_data_test
@@ -29,7 +30,7 @@ def main():
     x_train = x_data_vectorized[:len_train]
     x_test = x_data_vectorized[len_train:]
 
-    print('started learing')
+    print('started learning')
     clf = RandomForestClassifier(n_jobs=2)
     clf.fit(x_train, y_train)
     print('learning complete')
@@ -44,15 +45,9 @@ def main():
     print('making prediction and calculating accuracy')
     y_predictions = clf.predict(x_test)
 
-    accuracy = 0.0
-    for i in range(len(y_test)):
-        if y_predictions[i] == y_test[i]:
-            accuracy += 1.0
-
-    accuracy = (accuracy / len(y_test)) * 100
-    print('accuracy is:')
-    print(accuracy)
-
+    print('Accuracy: ', metrics.accuracy_score(y_test,y_predictions))
+    print('AUC-ROC: ', metrics.roc_auc_score(y_test, y_predictions))
+    print('Confusion matrix: ', metrics.confusion_matrix(y_test, y_predictions))
 
 if __name__ == '__main__':
     main()

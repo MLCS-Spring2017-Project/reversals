@@ -13,33 +13,33 @@ def count_judges(j1_party, j2_party, j3_party):
 
     try:
         if int(j1_party) == 0:
-            num_judges_party1 += 1
+            num_judges_party1 += 10
         elif int(j1_party) == 1:
-            num_judges_party2 += 1
+            num_judges_party2 += 10
         else:
-            num_judges_party_other += 1
+            num_judges_party_other += 10
     except ValueError:
-        num_judges_party_other += 1
+        num_judges_party_other += 10
 
     try:
         if int(j2_party) == 0:
-            num_judges_party1 += 1
+            num_judges_party1 += 10
         elif int(j2_party) == 1:
-            num_judges_party2 += 1
+            num_judges_party2 += 10
         else:
-            num_judges_party_other += 1
+            num_judges_party_other += 10
     except ValueError:
-        num_judges_party_other += 1
+        num_judges_party_other += 10
 
     try:
         if int(j3_party) == 0:
-            num_judges_party1 += 1
+            num_judges_party1 += 10
         elif int(j3_party) == 1:
-            num_judges_party2 += 1
+            num_judges_party2 += 10
         else:
-            num_judges_party_other += 1
+            num_judges_party_other += 10
     except ValueError:
-        num_judges_party_other += 1
+        num_judges_party_other += 10
 
     return num_judges_party1, num_judges_party2, num_judges_party_other
 
@@ -86,13 +86,13 @@ def create_data():
                 x_test.append(dictionary)
                 y_test.append(caselevel_dict[caseid])
     print(total_cases)
-    with open('./../../x_judges_train.pickle', 'wb') as handle:
+    with open('./../../x_train_judges_term.pickle', 'wb') as handle:
         pickle.dump(x_train, handle, protocol=pickle.HIGHEST_PROTOCOL)
-    with open('./../../y_judges_train.pickle', 'wb') as handle:
+    with open('./../../y_train_judges_term.pickle', 'wb') as handle:
         pickle.dump(y_train, handle, protocol=pickle.HIGHEST_PROTOCOL)
-    with open('./../../x_judges_test.pickle', 'wb') as handle:
+    with open('./../../x_test_judges_term.pickle', 'wb') as handle:
         pickle.dump(x_test, handle, protocol=pickle.HIGHEST_PROTOCOL)
-    with open('./../../y_judges_test.pickle', 'wb') as handle:
+    with open('./../../y_test_judges_term.pickle', 'wb') as handle:
         pickle.dump(y_test, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 

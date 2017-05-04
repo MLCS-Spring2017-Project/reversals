@@ -36,13 +36,13 @@ def create_data():
                 x_test.append(dictionary)
                 y_test.append(caselevel_dict[caseid])
     print(total_cases)
-    with open('./../../x_train.pickle', 'wb') as handle:
+    with open('./../../x_train_cases_term.pickle', 'wb') as handle:
         pickle.dump(x_train, handle, protocol=pickle.HIGHEST_PROTOCOL)
-    with open('./../../y_train.pickle', 'wb') as handle:
+    with open('./../../y_train_cases_term.pickle', 'wb') as handle:
         pickle.dump(y_train, handle, protocol=pickle.HIGHEST_PROTOCOL)
-    with open('./../../x_test.pickle', 'wb') as handle:
+    with open('./../../x_test_cases_term.pickle', 'wb') as handle:
         pickle.dump(x_test, handle, protocol=pickle.HIGHEST_PROTOCOL)
-    with open('./../../y_test.pickle', 'wb') as handle:
+    with open('./../../y_test_cases_term.pickle', 'wb') as handle:
         pickle.dump(y_test, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 

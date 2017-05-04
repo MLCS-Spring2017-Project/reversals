@@ -14,37 +14,49 @@ def create_data():
 
     caselevel_dict = {k: v for k, v in zip(caselevel['caseid'], caselevel['partyWinning'])}
 
-    # caselevel_set = set(caselevel['blcaseid'])
-
     path = "./../../data"
 
-    dictionary = defaultdict(int)
-
-    x_data = []
-
-    y_data = []
+    x_train = []
+    x_test = []
+    y_train = []
+    y_test = []
 
     i = 0
     for root, dirs, files in os.walk(path):
-        for name in files:
-
-            if name.endswith((".txt")):
+        d = root.split('/')
+        if(d[-1] == 'data'):
+            continue
+        if int(d[-1]) <= 2000:
+            for name in files:
                 caseid = name.replace(".txt", "")
-            print(caseid)
-            if caseid in caselevel_dict:
-                i += 1
-                with open(os.path.join(root, name), mode='r') as infile:
-                    reader = csv.reader(infile)
-                    dictionary = {rows[0]: int(rows[1]) for rows in reader}
+                print(caseid)
+                if caseid in caselevel_dict:
+                    i += 1
+                    with open(os.path.join(root, name), mode='rb') as infile:
+                        dictionary = pickle.load(infile)
+                    x_train.append(dictionary)
+                    y_train.append(caselevel_dict[caseid])
+        else:
+            for name in files:
+                caseid = name.replace(".txt", "")
+                print(caseid)
+                if caseid in caselevel_dict:
+                    i += 1
+                    with open(os.path.join(root, name), mode='rb') as infile:
+                        dictionary = pickle.load(infile)
+                    x_test.append(dictionary)
+                    y_test.append(caselevel_dict[caseid])
 
-                x_data.append(dictionary)
-                y_data.append(caselevel_dict[caseid])
 
     print("Number of common cases between ngrams and caselevel data : ", i)
-    with open('./../../x_data.pickle', 'wb') as handle:
-        pickle.dump(x_data, handle, protocol=pickle.HIGHEST_PROTOCOL)
-    with open('./../../y_data.pickle', 'wb') as handle:
-        pickle.dump(y_data, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    with open('./../../x_train_cases.pickle', 'wb') as handle:
+        pickle.dump(x_train, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    with open('./../../y_train_cases.pickle', 'wb') as handle:
+        pickle.dump(y_train, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    with open('./../../x_test_cases.pickle', 'wb') as handle:
+        pickle.dump(x_test, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    with open('./../../y_test_cases.pickle', 'wb') as handle:
+        pickle.dump(y_test, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
 if __name__ == '__main__':
