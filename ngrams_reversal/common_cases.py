@@ -7,45 +7,45 @@ import pickle
 
 
 def create_data():
-    fields = ['caseid', 'partyWinning', 'term']
+
+    fields = ['caseid', 'partyWinning']
+
     caselevel = pd.read_csv("./../../BLCircuitALL_SC_Merged.csv", skipinitialspace=True, usecols=fields)
+
     caselevel_dict = {k: v for k, v in zip(caselevel['caseid'], caselevel['partyWinning'])}
+
+    # caselevel_set = set(caselevel['blcaseid'])
+
     path = "./../../data"
-    x_train = []
-    y_train = []
-    x_test = []
-    y_test = []
-    total_cases = 0
+
+    dictionary = defaultdict(int)
+
+    x_data = []
+
+    y_data = []
+
+    i = 0
     for root, dirs, files in os.walk(path):
-        total_len = len(files)
-        train_len = int(0.9*total_len)
-        total_cases += total_len
-        if total_len:
-            for i in range(train_len):
-                caseid = files[i].replace(".txt", "")
-                print(caseid)
-                with open(os.path.join(root, files[i]), mode='rb') as infile:
-                    dictionary = pickle.load(infile)
-                x_train.append(dictionary)
-                y_train.append(caselevel_dict[caseid])
-            for i in range(train_len, total_len):
-                caseid = files[i].replace(".txt", "")
-                print(caseid)
-                with open(os.path.join(root, files[i]), mode='rb') as infile:
-                    dictionary = pickle.load(infile)
-                x_test.append(dictionary)
-                y_test.append(caselevel_dict[caseid])
-    print(total_cases)
-    with open('./../../x_train.pickle', 'wb') as handle:
-        pickle.dump(x_train, handle, protocol=pickle.HIGHEST_PROTOCOL)
-    with open('./../../y_train.pickle', 'wb') as handle:
-        pickle.dump(y_train, handle, protocol=pickle.HIGHEST_PROTOCOL)
-    with open('./../../x_test.pickle', 'wb') as handle:
-        pickle.dump(x_test, handle, protocol=pickle.HIGHEST_PROTOCOL)
-    with open('./../../y_test.pickle', 'wb') as handle:
-        pickle.dump(y_test, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        for name in files:
+
+            if name.endswith((".txt")):
+                caseid = name.replace(".txt", "")
+            print(caseid)
+            if caseid in caselevel_dict:
+                i += 1
+                with open(os.path.join(root, name), mode='r') as infile:
+                    reader = csv.reader(infile)
+                    dictionary = {rows[0]: int(rows[1]) for rows in reader}
+
+                x_data.append(dictionary)
+                y_data.append(caselevel_dict[caseid])
+
+    print("Number of common cases between ngrams and caselevel data : ", i)
+    with open('./../../x_data.pickle', 'wb') as handle:
+        pickle.dump(x_data, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    with open('./../../y_data.pickle', 'wb') as handle:
+        pickle.dump(y_data, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
 if __name__ == '__main__':
     create_data()
-
