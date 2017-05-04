@@ -1,8 +1,9 @@
 import os
 import shutil
+import sys
 
-src = "ngrams/train"
-dest = "ngrams/test"
+src = os.path.join(sys.argv[1], "train")
+dest = os.path.join(sys.argv[1], "test")
 
 for folder in os.listdir(src):
 
