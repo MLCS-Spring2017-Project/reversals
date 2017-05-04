@@ -12,6 +12,7 @@ from imblearn.over_sampling import RandomOverSampler
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn import metrics
 from helpers import utils
+from scipy.signal import resample
 import os
 import pickle
 
@@ -36,7 +37,7 @@ class Classifier:
         os.chdir(dir)
         files = glob("./**/*")
 
-        datasets = []
+        datasets = {"Affirmed": [], "Reversed": []}
         for fname in files:
             # print(fname)
             docid = fname.split('/')[-1]
@@ -46,7 +47,7 @@ class Classifier:
                 continue
 
             dic = utils.read_file_to_dict(fname)
-            datasets.append((dic, status))
+            datasets[status].append((dic, status))
         os.chdir(curr_dir)
         return datasets
 
@@ -62,15 +63,22 @@ class Classifier:
             status = "Reversed"
         return status
 
+    def oversample(self, data):
+        reverse_count = len(data["Reversed"])
+        affirm_count = len(data["Affirmed"])
+        print(reverse_count, affirm_count)
+        if reverse_count < affirm_count:
+            data["Reversed"] = resample(data["Reversed"], affirm_count)
+            print(len(data["Reversed"]))
+
+        return data["Affirmed"] + data["Reversed"]
+
     def train(self, train_data):
+        train_data = self.oversample(train_data)
         X, y = list(compat.izip(*train_data))
         X = self.vectorizer.fit_transform(X)
         y = self.encoder.fit_transform(y)
-        X = self.discriminant_analyzer.fit_transform(X, y)
 
-        ros = RandomOverSampler(random_state=42)
-
-        X_res, y_res = ros.fit_sample(X.toarray(), y.toarray())
         if self.first_call:
             self.classifier.fit(X_res, y_res)
         else:
@@ -119,7 +127,6 @@ class Classifier:
             y.append(self.encoder.transform([status])[0])
 
         datapoints = self.vectorizer.transform(datapoints)
-        datapoints = self.discriminant_analyzer.transform(datapoints, y)
         predicted_status = self.classifier.predict(datapoints)
 
         os.chdir(curr_dir)
