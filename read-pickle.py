@@ -1,5 +1,5 @@
 import pickle
 
 if __name__ == '__main__':
-    dic = pickle.load(open("../Data/district_affirm_reverse.pkl", "rb"))
+    dic = pickle.load(open("../Data/Pickles/1924_95.pkl", "rb"))
     print(dic)
