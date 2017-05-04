@@ -9,6 +9,7 @@ from sklearn.externals import joblib
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.preprocessing import LabelEncoder
 from imblearn.over_sampling import RandomOverSampler
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn import metrics
 from helpers import utils
 import os
@@ -28,6 +29,7 @@ class Classifier:
         self.first_call = False
         self.encoder = LabelEncoder()
         self.vectorizer = DictVectorizer(dtype=dtype, sparse=sparse)
+        self.discriminant_analyzer = LinearDiscriminantAnalysis()
 
     def fetch(self, dir):
         curr_dir = os.getcwd()
@@ -64,7 +66,10 @@ class Classifier:
         X, y = list(compat.izip(*train_data))
         X = self.vectorizer.fit_transform(X)
         y = self.encoder.fit_transform(y)
+        X = self.discriminant_analyzer.fit_transform(X, y)
+
         ros = RandomOverSampler(random_state=42)
+
         X_res, y_res = ros.fit_sample(X.toarray(), y.toarray())
         if self.first_call:
             self.classifier.fit(X_res, y_res)
@@ -75,7 +80,8 @@ class Classifier:
         dump = {
             'classifier': self.classifier,
             'encoder': self.encoder,
-            'vectorizer': self.vectorizer
+            'vectorizer': self.vectorizer,
+            'discriminant_analyzer': self.discriminant_analyzer
         }
 
         joblib.dump(dump, CLASSIFIER_PICKLE_PATH)
@@ -86,6 +92,7 @@ class Classifier:
             self.encoder = dump['encoder']
             self.classifier = dump['classifier']
             self.vectorizer = dump['vectorizer']
+            self.discriminant_analyzer = dump['discriminant_analyzer']
         else:
             self.first_call = True
 
@@ -112,6 +119,7 @@ class Classifier:
             y.append(self.encoder.transform([status])[0])
 
         datapoints = self.vectorizer.transform(datapoints)
+        datapoints = self.discriminant_analyzer.transform(datapoints, y)
         predicted_status = self.classifier.predict(datapoints)
 
         os.chdir(curr_dir)
