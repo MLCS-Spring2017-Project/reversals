@@ -71,9 +71,9 @@ class Classifier:
         print(reverse_count, affirm_count)
         if reverse_count < affirm_count:
             for i in range(0, affirm_count - reverse_count):
-                rand = randint(reverse_count)
+                rand = randint(0, reverse_count)
                 data["Reversed"].append(copy.deepcopy(data["Reversed"][rand]))
-        print(len(Data["Reversed"]))
+        print(len(data["Reversed"]))
         return data["Affirmed"] + data["Reversed"]
 
     def train(self, train_data):
@@ -83,9 +83,9 @@ class Classifier:
         y = self.encoder.fit_transform(y)
 
         if self.first_call:
-            self.classifier.fit(X_res, y_res)
+            self.classifier.fit(X, y_res)
         else:
-            self.classifier.fit(X_res, y_res)
+            self.classifier.fit(X, y)
 
     def save_classifier(self):
         dump = {
