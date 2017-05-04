@@ -73,6 +73,7 @@ def set_affirm_reverse(zfname):
                         break
 
             if len(status) == 0:
+                print(caseid)
                 continue
             else:
                 count += 1
