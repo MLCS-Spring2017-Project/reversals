@@ -10,6 +10,7 @@ from sklearn.feature_extraction import DictVectorizer
 from sklearn.preprocessing import LabelEncoder
 from imblearn.over_sampling import RandomOverSampler
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.ensemble import GradientBoostingClassifier
 from sklearn import metrics
 from helpers import utils
 from scipy.signal import resample
@@ -24,7 +25,7 @@ CLASSIFIER_PICKLE_PATH = "classifier.pkl"
 class Classifier:
     def __init__(self, dtype=float, sparse=True):
         global CLASSIFIER_PICKLE_PATH
-        self.classifier = RandomForestClassifier()
+        self.classifier = GradientBoostingClassifier(learning_rate=0.1, subsample=0.5)
         CLASSIFIER_PICKLE_PATH = \
             self.classifier.__class__.__name__ + "_" + CLASSIFIER_PICKLE_PATH
         self.affirm_reverse_path = os.path.abspath("district_affirm_reverse.pkl")
@@ -83,7 +84,7 @@ class Classifier:
         y = self.encoder.fit_transform(y)
 
         if self.first_call:
-            self.classifier.fit(X, y_res)
+            self.classifier.fit(X, y)
         else:
             self.classifier.fit(X, y)
 
