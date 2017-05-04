@@ -7,21 +7,27 @@ from sklearn.ensemble import RandomForestClassifier
 
 def main():
     print('Loading the dataset')
-    with open('./../../x_data.pickle', 'rb') as handle:
-        x_data = pickle.load(handle)
-    with open('./../../y_data.pickle', 'rb') as handle:
-        y_data = pickle.load(handle)
+    with open('./../../x_train.pickle', 'rb') as handle:
+        x_data_train = pickle.load(handle)
+    with open('./../../x_test.pickle', 'rb') as handle:
+        x_data_test = pickle.load(handle)
+    with open('./../../y_train.pickle', 'rb') as handle:
+        y_train = pickle.load(handle)
+    with open('./../../y_test.pickle', 'rb') as handle:
+        y_test = pickle.load(handle)
+
+    x_data = x_data_train + x_data_test
+    len_train = len(x_data_train)
+    len_test = len(x_data_test)
 
     print('using DictVectorizer to vectorize the sparse data')
-    v = DictVectorizer(sparse=False)
+    v = DictVectorizer(sparse=True)
     x_data_vectorized = v.fit_transform(x_data)
     print('dictVectorising complete')
 
     print('Split into Training and Test data')
-    x_train = x_data_vectorized[:1800]
-    x_test = x_data_vectorized[1800:]
-    y_train = y_data[:1800]
-    y_test = y_data[1800:]
+    x_train = x_data_vectorized[:len_train]
+    x_test = x_data_vectorized[len_train:]
 
     print('started learing')
     clf = RandomForestClassifier(n_jobs=2)
