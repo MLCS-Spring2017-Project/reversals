@@ -126,7 +126,7 @@ class Classifier:
             if not status:
                 continue
 
-            X = utils.read_file_to_dict(fname)
+            X = utils.read_file_to_dict(fname, False)
             datapoints.append(X)
             y.append(self.encoder.transform([status])[0])
 
