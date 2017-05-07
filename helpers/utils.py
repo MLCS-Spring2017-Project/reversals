@@ -26,12 +26,31 @@ def save_dict_to_file(target_path, dict_to_save):
             pass
 
 
-def read_file_to_dict(target_path):
+def trim_dic(dic):
+    # total = len(dic[row])
+    # current = 0
+    # for i in dic:
+    #     current += dic[i]
+    #
+    # average = (1.0 * current) / total
+    #
+    # for i in dic.iteritems():
+    #     if dic[i] < average:
+    #         dic.pop(i)
+    total = len(dic.keys())
+    final = dic.most_common(int(total / 8)) + dic.most_common()[- int(total / 8):]
+    return dict(final)
+
+
+def read_file_to_dict(target_path, trim=True):
     reader = csv.reader(open(target_path))
 
     dic = Counter()
     for row in reader:
         dic[row[0]] = int(row[1])
+
+    if trim:
+        dic = trim_dic(dic)
 
     return dic
 
