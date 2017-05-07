@@ -43,8 +43,9 @@ class PartialClassifier:
         self.dic = pickle.load(open(self.affirm_reverse_path, "rb"))
         self.first_call = False
         self.encoder = LabelEncoder()
+        self.tfidf = text.TfidfTransformer()
         # self.hashing_vectorizer = text.HashingVectorizer(analyzer="word", ngram_range=(1, 2), stop_words=stopwords, non_negative=True)
-        self.hashing_vectorizer =
+        self.hashing_vectorizer = text.CountVectorizer(max_features=1000)
         self.discriminant_analyzer = LinearDiscriminantAnalysis()
 
     def fetch(self, dir):
@@ -79,13 +80,13 @@ class PartialClassifier:
 
     def train(self, train_data):
         X, y = list(compat.izip(*train_data))
-        X = self.hashing_vectorizer.transform(X)
+        X = self.hashing_vectorizer.fit_transform(X)
         y = self.encoder.fit_transform(y)
-
+        X = self.tfidf.fit_transform(X)
         X = self.discriminant_analyzer.fit_transform(X.toarray(), y)
 
         ros = RandomOverSampler(random_state=42)
-        X_res, y_res = ros.fit_sample(X, y.toarray())
+        X_res, y_res = ros.fit_sample(X, y)
 
         if self.first_call:
             self.classifier.fit(X_res, y_res)
@@ -96,7 +97,8 @@ class PartialClassifier:
         dump = {
             'classifier': self.classifier,
             'encoder': self.encoder,
-            'hashing_vectorizer': self.hashing_vectorizer
+            'hashing_vectorizer': self.hashing_vectorizer,
+            'tfidf': self.tfidf
         }
 
         joblib.dump(dump, CLASSIFIER_PICKLE_PATH)
@@ -107,6 +109,7 @@ class PartialClassifier:
             self.encoder = dump['encoder']
             self.classifier = dump['classifier']
             self.hashing_vectorizer = dump['hashing_vectorizer']
+            self.tfidf = dump['tfidf']
         else:
             self.first_call = True
 
@@ -128,11 +131,13 @@ class PartialClassifier:
             if not status:
                 continue
 
-            X = utils.read_file_to_dict(fname)
+            X = utils.text_from_district_file(fname)
             datapoints.append(X)
             y.append(self.encoder.transform([status])[0])
 
         datapoints = self.hashing_vectorizer.transform(datapoints)
+        datapoints = self.tfidf.transform(datapoints)
+
         predicted_status = self.classifier.predict(datapoints)
 
         os.chdir(curr_dir)

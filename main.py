@@ -5,7 +5,7 @@ import os
 from helpers import zip_parser
 from helpers import ngrams
 from helpers import utils
-from helpers import classifier, partial_classifier
+from helpers import classifier, hashing_classifier
 
 
 def main():
@@ -25,7 +25,7 @@ def main():
         return
 
     if args.partial:
-        classifier_instance = partial_classifier.PartialClassifier()
+        classifier_instance = hashing_classifier.PartialClassifier()
     else:
         classifier_instance = classifier.Classifier()
 
