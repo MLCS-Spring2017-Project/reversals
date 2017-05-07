@@ -8,9 +8,13 @@ class Trainer:
         self.magpie = MagpieModel()
 
     def train(self):
+        print("Init work vectors, start")
         self.magpie.init_word_vectors(self.config["train_path"], vec_dim=200)
+        print("Init work vectors, done")
         self.labels = ["Affirmed", "Reversed"]
-        self.magpie.batch_train(self.config["train_path"], labels, test_dir=self.config["test_path"], nb_epochs=30)
+        print("Starting train")
+        self.magpie.batch_train(self.config["train_path"], labels, test_dir=self.config["test_path"], nb_epochs=1)
+        print("Trained")
 
     def save(self):
         embeddings_path = os.path.join(self.config["save_path"], "embeddings", "embeddings")
