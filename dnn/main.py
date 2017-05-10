@@ -1,6 +1,7 @@
 import sys
 import argparse
 import os
+import logging
 from train import Trainer
 from predict import Predict
 
@@ -33,4 +34,6 @@ def main():
 
 
 if __name__ == '__main__':
+    logging.basicConfig(format='%(levelname)s - %(asctime)s - %(message)s',
+                        level=logging.DEBUG)
     main()
