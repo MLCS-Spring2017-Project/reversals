@@ -13,33 +13,33 @@ def count_judges(j1_party, j2_party, j3_party):
 
     try:
         if int(j1_party) == 0:
-            num_judges_party1 += 10
+            num_judges_party1 += 5
         elif int(j1_party) == 1:
-            num_judges_party2 += 10
+            num_judges_party2 += 5
         else:
-            num_judges_party_other += 10
+            num_judges_party_other += 5
     except ValueError:
-        num_judges_party_other += 10
+        num_judges_party_other += 5
 
     try:
         if int(j2_party) == 0:
-            num_judges_party1 += 10
+            num_judges_party1 += 5
         elif int(j2_party) == 1:
-            num_judges_party2 += 10
+            num_judges_party2 += 5
         else:
-            num_judges_party_other += 10
+            num_judges_party_other += 5
     except ValueError:
-        num_judges_party_other += 10
+        num_judges_party_other += 5
 
     try:
         if int(j3_party) == 0:
-            num_judges_party1 += 10
+            num_judges_party1 += 5
         elif int(j3_party) == 1:
-            num_judges_party2 += 10
+            num_judges_party2 += 5
         else:
-            num_judges_party_other += 10
+            num_judges_party_other += 5
     except ValueError:
-        num_judges_party_other += 10
+        num_judges_party_other += 5
 
     return num_judges_party1, num_judges_party2, num_judges_party_other
 

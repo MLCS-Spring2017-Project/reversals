@@ -4,7 +4,7 @@ import pickle
 from collections import Counter
 import time
 from tqdm import tqdm
-
+from sklearn import metrics
 
 def dotProduct(d1, d2):
     if len(d1) < len(d2):
@@ -57,23 +57,33 @@ def accuracy_percent(x, y, weight):
     predict_list = [svm_predict(i, weight) for i in x]
     return sum([1 for i in range(len(y)) if y[i] == predict_list[i]]) * 100 / float(len(y))
 
+def predict(x, weight):
+    predict_list = [svm_predict(i, weight) for i in x]
+    return predict_list
 
 def main():
     print('Loading the dataset')
-    with open('./../../x_data.pickle', 'rb') as handle:
-        x_data = pickle.load(handle)
-    with open('./../../y_data.pickle', 'rb') as handle:
-        y_data = pickle.load(handle)
+    x = '_features'
+    print('Loading the ', x, ' dataset')
+    with open('./../../x_train' + x + '.pickle', 'rb') as handle:
+        x_train = pickle.load(handle)
+    with open('./../../x_test' + x + '.pickle', 'rb') as handle:
+        x_test = pickle.load(handle)
+    with open('./../../y_train' + x + '.pickle', 'rb') as handle:
+        y_train = pickle.load(handle)
+    with open('./../../y_test' + x + '.pickle', 'rb') as handle:
+        y_test = pickle.load(handle)
     print('Split into Training and Test data')
-    x_train = x_data[:700]
-    x_test = x_data[700:]
-    y_train = y_data[:700]
-    y_test = y_data[700:]
     print('Running SVM')
     svm_weight = pegasos_fast(x_train, y_train, 100, 0.01)
     with open('./../../svm_weight.pickle', 'wb') as handle:
         pickle.dump(svm_weight, handle, protocol=pickle.HIGHEST_PROTOCOL)
-    print('\nAccuracy: ', accuracy_percent(x_test, y_test, svm_weight))
+    y_predictions = predict(x_test, svm_weight)
+    print('Accuracy: ', metrics.accuracy_score(y_test,y_predictions))
+    print('AUC-ROC: ', metrics.roc_auc_score(y_test, y_predictions))
+    print('Confusion matrix: \n', metrics.confusion_matrix(y_test, y_predictions))
+    print('F1 score: ', metrics.f1_score(y_test, y_predictions))
+
 
 
 if __name__ == '__main__':
