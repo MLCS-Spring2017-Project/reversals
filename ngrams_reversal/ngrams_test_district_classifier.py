@@ -1,8 +1,9 @@
 import pickle
+import joblib
 import numpy as np
 from pathlib import Path
 from sklearn.feature_extraction import DictVectorizer
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import GradientBoostingClassifier
 from sklearn import metrics
 
 
@@ -19,7 +20,7 @@ def main():
     print('load data successful')
 
     with open('../../GradientBoostingClassifier_classifier_best.pkl', 'rb') as handle:
-        GBC = pickle.load(handle)
+        GBC = joblib.load(handle)
     gbc_classifier = GBC['classifier']
     gbc_vectoriser = GBC['vectorizer']
     print('load Gradient boosting pickle successful')
@@ -28,7 +29,7 @@ def main():
     print('transform x_data successful')
 
     print('making prediction and calculating accuracy')
-    y_predictions = clf.predict(x_test_data)
+    y_predictions = gbc_classifier.predict(x_test_data)
 
     print('Accuracy: ', metrics.accuracy_score(y_test, y_predictions))
     print('AUC-ROC: ', metrics.roc_auc_score(y_test, y_predictions))
