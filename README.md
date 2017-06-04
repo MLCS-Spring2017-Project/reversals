@@ -36,3 +36,25 @@ Two kind of approaches have been used for classification and both of which are r
 
 - `scikit-learn`: Use the latest version of `scikit-learn` master, there are some issues with gradient boosting classifier in latest version available on pip.
 - `magpie`: Use the forked version of [magpie](https://github.com/MLCS-Spring2017-Project/magpie) with some changes made to suit needs of the project
+
+## Paper and Poster
+
+- Paper: [Link](https://github.com/MLCS-Spring2017-Project/reversals/blob/master/paper.pdf)
+- Poster: [Link](https://github.com/MLCS-Spring2017-Project/reversals/blob/master/poster.pdf)
+
+## Authors
+
+District to circuit:
+
+- Amanpreet Singh
+- Sharan Agarwal
+
+Circuit to Supreme:
+
+- Karthik Venkatesan
+- Simranjyot Singh
+
+Mentors:
+
+- Daniel Chen
+- Elliot Ash
