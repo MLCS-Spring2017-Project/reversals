@@ -1,4 +1,5 @@
 from magpie import MagpieModel
+from keras.callbacks import EarlyStopping
 import os
 import logging
 log = logging.getLogger(__name__)
@@ -9,6 +10,7 @@ class Trainer:
         self.config = config
         embeddings_path = os.path.join(self.config["save_path"], "embeddings", "embeddings")
         scaler_path = os.path.join(self.config["save_path"], "scaler", "scaler")
+        model_path = os.path.join(self.config["save_path"], "model", "model.h5")
 
         if os.path.exists(embeddings_path):
             self.magpie = MagpieModel(word2vec_model=embeddings_path)
@@ -17,6 +19,9 @@ class Trainer:
 
         if os.path.exists(scaler_path):
             self.magpie.load_scaler(scaler_path)
+
+        if os.path.exists(model_path):
+            self.magpie.load_model(model_path)
 
     def train(self):
         if not self.magpie.word2vec_model:
@@ -31,7 +36,8 @@ class Trainer:
 
         self.labels = ["Affirmed", "Reversed"]
         log.info("Starting training")
-        self.magpie.batch_train(self.config["train_path"], self.labels, test_dir=self.config["test_path"], nb_epochs=30)
+        early_stopping = EarlyStopping(monitor='val_loss', patience=4)
+        self.magpie.batch_train(self.config["train_path"], self.labels, test_dir=self.config["test_path"], callbacks=[early_stopping], nb_epochs=15)
         log.info("Trained")
 
     def save(self):

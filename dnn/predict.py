@@ -39,11 +39,11 @@ class Predict:
             predicted.append(prediction)
             y.append(status)
 
-        print(predicted, y)
         encoder = LabelEncoder()
         y = encoder.fit_transform(y)
         predicted = encoder.transform(predicted)
         fpr, tpr, thresholds = metrics.roc_curve(y, predicted)
 
-        log.info(metrics.auc(fpr, tpr))
+        log.info(metrics.f1_score(y, predicted, average="weighted"))
+        log.info(metrics.accuracy_score(y, predicted))
         log.info(metrics.confusion_matrix(y, predicted))

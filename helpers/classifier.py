@@ -138,3 +138,5 @@ class Classifier:
 
         print(metrics.auc(fpr, tpr))
         print(metrics.confusion_matrix(y, predicted_status))
+        print(metrics.f1_score(y, predicted_status, average='weighted'))
+        print(metrics.accuracy_score(y, predicted_status))
