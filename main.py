@@ -5,7 +5,7 @@ import os
 from helpers import zip_parser
 from helpers import ngrams
 from helpers import utils
-from helpers import classifier, hashing_classifier
+from helpers import classifier, hashing_classifier, dissent_classifier
 
 
 def main():
@@ -16,6 +16,7 @@ def main():
     parser.add_argument("-t", "--train", action="store_true")
     parser.add_argument("-p", "--predict", action="store_true")
     parser.add_argument("-pa", "--partial", action="store_true")
+    parser.add_argument("-di", "--dissent", action="store_true")
     parser.add_argument("file", type=str, action="store", nargs="?")
     args = parser.parse_args()
 
@@ -26,6 +27,8 @@ def main():
 
     if args.partial:
         classifier_instance = hashing_classifier.PartialClassifier()
+    elif args.dissent:
+        classifier_instance = dissent_classifier.Classifier()
     else:
         classifier_instance = classifier.Classifier()
 

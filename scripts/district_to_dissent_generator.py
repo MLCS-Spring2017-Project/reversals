@@ -1,7 +1,7 @@
 """
 Script for matching district cases to their dissent outcome in circuit court
 
-Usage: python district_to_dissent_generator.py "path_to_dissenterconcurrernames.csv" "path_to_unique_district_matches_pkl" "path_to_circuit_to_district_matches_pickle_folder"
+Usage: python district_to_dissent_generator.py "path_to_dissenterconcurrernames.csv" "path_to_unique_district_matches_pkl" "path_to_circuit_to_district_matches_pickle_folder" <optional_arg_for_saving_dict_with_folder_names>
 
 """
 import pickle
@@ -16,6 +16,8 @@ if __name__ == '__main__':
     dissent_df = pd.read_csv(sys.argv[1])
     dissent = {0: 0, 1: 0}
     dist_matches = pickle.load(open(sys.argv[2], "rb"))
+
+    save_with_folder = sys.argv[4]
 
     for index, row in dist_matches.iterrows():
         flag = 0
@@ -32,8 +34,10 @@ if __name__ == '__main__':
             for case in dist_case:
                 case_name = str(case).split('/')
                 caseid = case_name[0]
-                case_name = os.path.join(case_name[1], case_name[0])
-
+                if save_with_folder:
+                    case_name = os.path.join(case_name[1], case_name[0])
+                else:
+                    case_name = caseid
                 if str(caseid) == str(row['caseid']):
 
                     flag = 1

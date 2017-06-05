@@ -46,7 +46,7 @@ Two kind of approaches have been used for classification and both of which are r
 
 District to circuit:
 
-- Amanpreet Singh
+- [Amanpreet Singh](https://github.com/apsdehal)
 - Sharan Agarwal
 
 Circuit to Supreme:
